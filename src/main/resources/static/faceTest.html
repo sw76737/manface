@@ -1,0 +1,77 @@
+<script src="js/jquery.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div><input type="file" id="uploadimg"></div>
+    <div><img id="img" style="width: 160px;height: 100px"></div>
+    <div id="imgBase64"></div>
+</body>
+<script>
+    function _addImgFileListener(obj, fun) {
+        $(obj).change(function() {
+            try {
+                var file = this.files[0];
+                var reader = new FileReader();
+                reader.onload = function() {
+                    var img = new Image();
+                    img.src = reader.result;
+                    img.onload = function() {
+                        var w = img.width,
+                            h = img.height;
+                        var canvas = document.createElement('canvas');
+                        var ctx = canvas.getContext('2d');
+                        $(canvas).attr({
+                            width: w,
+                            height: h
+                        });
+                        ctx.drawImage(img, 0, 0, w, h);
+                        var base64 = canvas.toDataURL('image/jpeg', 0.5);
+                        var result = {
+                            url: window.URL.createObjectURL(file),
+                            base64: base64,
+                            clearBase64: base64.substr(base64.indexOf(',') + 1),
+                            suffix: base64.substring(base64.indexOf('/') + 1, base64.indexOf(';')),
+                        };
+                        fun(result);
+                    }
+                }
+                reader.readAsDataURL(this.files[0]);
+            } catch(e) {
+                _showMsg(e);
+            }
+        });
+    }
+    $(document).ready(function() {
+        _addImgFileListener("#uploadimg", function(data) {
+            $("#img").attr("src",data.base64);
+            //你的业务
+            var image=data.base64.split(',')[1];
+            console.log(data.base64)
+            $.ajax({
+                url:"http://localhost:8080/face/testFace",
+                data:{'imgString':image},/**/
+                type:'post',
+                dataType:'json',
+                success:function (data) {
+                    if(data.result) {
+                        // var
+                        var beauty = data.result.face_list[0].beauty;
+                        var age = data.result.face_list[0].age;
+                        var sex = "女性";
+                        var male = data.result.face_list[0].gender.type;
+                        if (male == "male") {
+                            sex = "男性";
+                        }
+                        $("#imgBase64").html("此人是" + sex + ",年龄大概" + age + ",颜值得分" + beauty);
+                    }
+
+                }
+            })
+        });
+    })
+</script>
+</html>
