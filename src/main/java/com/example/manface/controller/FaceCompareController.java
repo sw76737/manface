@@ -14,7 +14,7 @@ import java.util.HashMap;
 public class FaceCompareController {
     @RequestMapping("/testFace")
     @ResponseBody
-    public String ggg(String imgString){
+    public String faceReco(String imgString){
         AipFace client = FaceClient.getClient();
         // 传入可选参数调用接口
         HashMap<String, String> options = new HashMap<>();

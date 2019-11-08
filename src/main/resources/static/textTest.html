@@ -41,7 +41,7 @@
                 }
                 reader.readAsDataURL(this.files[0]);
             } catch(e) {
-                _showMsg(e);
+                console.log(e);
             }
         });
     }
@@ -52,21 +52,29 @@
             var image=data.base64.split(',')[1];
             console.log(data.base64)
             $.ajax({
-                url:"http://localhost:8082/face/testFace",
+                url:"http://localhost:8082/text/textReco",
                 data:{'imgString':image},/**/
                 type:'post',
                 dataType:'json',
                 success:function (data) {
-                    if(data.result) {
-                        // var
-                        var beauty = data.result.face_list[0].beauty;
-                        var age = data.result.face_list[0].age;
-                        var sex = "女性";
-                        var male = data.result.face_list[0].gender.type;
-                        if (male == "male") {
-                            sex = "男性";
+                    //$("#imgBase64").html(JSON.stringify(data));
+                    if(data.words_result) {
+                        var html = "";
+                        var text = data.words_result;
+                        for(var i = 0;i<text.length;i++){
+                            html = html+"<div>"+text[i].words+"</div>";
                         }
-                        $("#imgBase64").html("此人是" + sex + ",年龄大概" + age + ",颜值得分" + beauty);
+
+                        // var
+                        // var beauty = data.result.face_list[0].beauty;
+                        // var age = data.result.face_list[0].age;
+                        // var sex = "女性";
+                        // var male = data.result.face_list[0].gender.type;
+                        // if (male == "male") {
+                        //     sex = "男性";
+                        // }
+                        // $("#imgBase64").html("此人是" + sex + ",年龄大概" + age + ",颜值得分" + beauty);
+                        $("#imgBase64").html(html);
                     }
 
                 }
